@@ -1,0 +1,3 @@
+/home/michaelwu/erika/build/CMakeFiles/erika.dir
+/home/michaelwu/erika/build/CMakeFiles/edit_cache.dir
+/home/michaelwu/erika/build/CMakeFiles/rebuild_cache.dir

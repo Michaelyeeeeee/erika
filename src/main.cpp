@@ -147,7 +147,7 @@ int main(
      */
     WakeWordDetector wake_detector(
         model_path,
-        "hey raspberry",
+        "hey jamal",
         static_cast<float>(SAMPLE_RATE));
 
     Transcriber transcriber(
