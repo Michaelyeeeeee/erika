@@ -12,12 +12,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-Feedback::Feedback(
-    const std::string &speaker_device)
-    : speaker_device_(speaker_device),
-      speaking_(false),
-      speech_pid_(-1),
-      playback_pid_(-1)
+Feedback::Feedback(const std::string &speaker_device)
+    : speaker_device_(speaker_device), speaking_(false), speech_pid_(-1), playback_pid_(-1)
 {
 }
 
@@ -26,8 +22,7 @@ Feedback::~Feedback()
     stop();
 }
 
-void Feedback::speak(
-    const std::string &text)
+void Feedback::speak(const std::string &text)
 {
     if (text.empty())
     {
@@ -51,9 +46,7 @@ void Feedback::speak(
 
     if (pipe(pipe_fd) == -1)
     {
-        std::cerr
-            << "Feedback: failed to create audio pipe.\n";
-
+        std::cerr << "Feedback: failed to create audio pipe.\n";
         return;
     }
 
@@ -62,13 +55,11 @@ void Feedback::speak(
      * Start espeak-ng
      * ---------------------------------------------------------
      */
-    pid_t espeak_pid =
-        fork();
+    pid_t espeak_pid = fork();
 
     if (espeak_pid < 0)
     {
-        std::cerr
-            << "Feedback: failed to fork espeak-ng.\n";
+        std::cerr << "Feedback: failed to fork espeak-ng.\n";
 
         close(pipe_fd[0]);
         close(pipe_fd[1]);
@@ -81,9 +72,7 @@ void Feedback::speak(
         /*
          * Send espeak WAV output into the pipe.
          */
-        dup2(
-            pipe_fd[1],
-            STDOUT_FILENO);
+        dup2(pipe_fd[1], STDOUT_FILENO);
 
         close(pipe_fd[0]);
         close(pipe_fd[1]);
@@ -110,7 +99,6 @@ void Feedback::speak(
             "45",
 
             text.c_str(),
-
             static_cast<char *>(nullptr));
 
         _exit(1);
@@ -121,22 +109,14 @@ void Feedback::speak(
      * Start aplay
      * ---------------------------------------------------------
      */
-    pid_t aplay_pid =
-        fork();
+    pid_t aplay_pid = fork();
 
     if (aplay_pid < 0)
     {
-        std::cerr
-            << "Feedback: failed to fork aplay.\n";
+        std::cerr << "Feedback: failed to fork aplay.\n";
 
-        kill(
-            espeak_pid,
-            SIGTERM);
-
-        waitpid(
-            espeak_pid,
-            nullptr,
-            0);
+        kill(espeak_pid, SIGTERM);
+        waitpid(espeak_pid, nullptr, 0);
 
         close(pipe_fd[0]);
         close(pipe_fd[1]);
@@ -149,9 +129,7 @@ void Feedback::speak(
         /*
          * Read WAV data from espeak.
          */
-        dup2(
-            pipe_fd[0],
-            STDIN_FILENO);
+        dup2(pipe_fd[0], STDIN_FILENO);
 
         close(pipe_fd[0]);
         close(pipe_fd[1]);
@@ -173,14 +151,9 @@ void Feedback::speak(
     close(pipe_fd[0]);
     close(pipe_fd[1]);
 
-    speech_pid_ =
-        espeak_pid;
-
-    playback_pid_ =
-        aplay_pid;
-
-    speaking_ =
-        true;
+    speech_pid_ = espeak_pid;
+    playback_pid_ = aplay_pid;
+    speaking_ = true;
 
     /*
      * Wait for both programs to finish.
@@ -188,15 +161,8 @@ void Feedback::speak(
      * This blocks the Actions worker thread,
      * but NOT Erika's microphone thread.
      */
-    waitpid(
-        espeak_pid,
-        nullptr,
-        0);
-
-    waitpid(
-        aplay_pid,
-        nullptr,
-        0);
+    waitpid(espeak_pid, nullptr, 0);
+    waitpid(aplay_pid, nullptr, 0);
 
     speech_pid_ = -1;
     playback_pid_ = -1;
@@ -205,53 +171,34 @@ void Feedback::speak(
 
 void Feedback::success()
 {
-    speak(
-        "Success.");
+    speak("Success.");
 }
 
 void Feedback::speak_time()
 {
-    auto now =
-        std::chrono::system_clock::now();
-
-    std::time_t current_time =
-        std::chrono::system_clock::to_time_t(
-            now);
+    auto now = std::chrono::system_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
 
     std::tm local_time{};
-
-    localtime_r(
-        &current_time,
-        &local_time);
+    localtime_r(&current_time, &local_time);
 
     std::ostringstream speech;
+    speech << "The time is " << std::put_time(&local_time, "%I:%M %p");
 
-    speech
-        << "The time is "
-        << std::put_time(
-               &local_time,
-               "%I:%M %p");
-
-    speak(
-        speech.str());
+    speak(speech.str());
 }
 
 void Feedback::stop()
 {
-    pid_t espeak_pid =
-        speech_pid_.load();
-
-    pid_t aplay_pid =
-        playback_pid_.load();
+    pid_t espeak_pid = speech_pid_.load();
+    pid_t aplay_pid = playback_pid_.load();
 
     /*
      * Stop audio playback first.
      */
     if (aplay_pid > 0)
     {
-        kill(
-            aplay_pid,
-            SIGTERM);
+        kill(aplay_pid, SIGTERM);
     }
 
     /*
@@ -259,9 +206,7 @@ void Feedback::stop()
      */
     if (espeak_pid > 0)
     {
-        kill(
-            espeak_pid,
-            SIGTERM);
+        kill(espeak_pid, SIGTERM);
     }
 
     /*

@@ -1,4 +1,5 @@
 #include "wake_word.hpp"
+#include "config.hpp"
 
 #include <vosk_api.h>
 
@@ -9,8 +10,8 @@
 
 namespace
 {
-    std::string to_lower(
-        std::string text)
+
+    std::string normalize_text(std::string text)
     {
         std::transform(
             text.begin(),
@@ -21,9 +22,31 @@ namespace
                 return std::tolower(c);
             });
 
+        text.erase(
+            text.begin(),
+            std::find_if(
+                text.begin(),
+                text.end(),
+                [](unsigned char c)
+                {
+                    return !std::isspace(c);
+                }));
+
+        text.erase(
+            std::find_if(
+                text.rbegin(),
+                text.rend(),
+                [](unsigned char c)
+                {
+                    return !std::isspace(c);
+                })
+                .base(),
+            text.end());
+
         return text;
     }
-}
+
+} // namespace
 
 WakeWordDetector::WakeWordDetector(
     const std::string &model_path,
@@ -31,40 +54,36 @@ WakeWordDetector::WakeWordDetector(
     float sample_rate)
     : model_(nullptr),
       recognizer_(nullptr),
-      wake_word_(
-          to_lower(wake_word))
+      wake_word_(normalize_text(wake_word)),
+      detection_count_(0)
 {
-    model_ =
-        vosk_model_new(
-            model_path.c_str());
+    model_ = vosk_model_new(model_path.c_str());
 
     if (model_ == nullptr)
     {
-        throw std::runtime_error(
-            "Failed to load Vosk wake-word model");
+        throw std::runtime_error("Failed to load Vosk wake-word model.");
     }
 
     /*
-     * Restrict this recognizer to the wake phrase.
+     * [unk] is very important.
+     *
+     * Without it, the recognizer is strongly encouraged
+     * to interpret unrelated speech/noise as the only
+     * phrase in its grammar.
      */
-    std::string grammar =
-        "[\"" + wake_word + "\", \"[unk]\"]";
+    std::string grammar = "[\"" + wake_word_ + "\", \"[unk]\"]";
 
-    recognizer_ =
-        vosk_recognizer_new_grm(
-            model_,
-            sample_rate,
-            grammar.c_str());
+    recognizer_ = vosk_recognizer_new_grm(
+        model_,
+        sample_rate,
+        grammar.c_str());
 
     if (recognizer_ == nullptr)
     {
-        vosk_model_free(
-            model_);
-
+        vosk_model_free(model_);
         model_ = nullptr;
 
-        throw std::runtime_error(
-            "Failed to create Vosk wake-word recognizer");
+        throw std::runtime_error("Failed to create wake-word recognizer.");
     }
 }
 
@@ -72,93 +91,114 @@ WakeWordDetector::~WakeWordDetector()
 {
     if (recognizer_ != nullptr)
     {
-        vosk_recognizer_free(
-            recognizer_);
+        vosk_recognizer_free(recognizer_);
     }
 
     if (model_ != nullptr)
     {
-        vosk_model_free(
-            model_);
+        vosk_model_free(model_);
     }
 }
 
-bool WakeWordDetector::process(
-    const int16_t *samples,
-    int sample_count)
+std::string WakeWordDetector::extract_value(
+    const std::string &json,
+    const std::string &key)
 {
-    int complete =
-        vosk_recognizer_accept_waveform(
-            recognizer_,
-            reinterpret_cast<const char *>(
-                samples),
-            sample_count *
-                sizeof(int16_t));
+    const std::string marker = "\"" + key + "\"";
 
-    const char *result =
-        nullptr;
+    std::size_t key_pos = json.find(marker);
 
-    /*
-     * Check both finished and partial recognition.
-     *
-     * Partial recognition is what lets:
-     *
-     *   "hey raspberry open firefox"
-     *
-     * trigger without requiring a long pause after
-     * "raspberry".
-     */
+    if (key_pos == std::string::npos)
+    {
+        return "";
+    }
+
+    std::size_t colon = json.find(':', key_pos + marker.length());
+
+    if (colon == std::string::npos)
+    {
+        return "";
+    }
+
+    std::size_t first_quote = json.find('"', colon + 1);
+
+    if (first_quote == std::string::npos)
+    {
+        return "";
+    }
+
+    std::size_t second_quote = json.find('"', first_quote + 1);
+
+    if (second_quote == std::string::npos)
+    {
+        return "";
+    }
+
+    return json.substr(
+        first_quote + 1,
+        second_quote - first_quote - 1);
+}
+
+bool WakeWordDetector::is_exact_wake_word(const std::string &text) const
+{
+    return normalize_text(text) == wake_word_;
+}
+
+bool WakeWordDetector::process(const int16_t *samples, int sample_count)
+{
+    int complete = vosk_recognizer_accept_waveform(
+        recognizer_,
+        reinterpret_cast<const char *>(samples),
+        sample_count * sizeof(int16_t));
+
+    std::string recognized;
+
     if (complete)
     {
-        result =
-            vosk_recognizer_result(
-                recognizer_);
+        const char *result = vosk_recognizer_result(recognizer_);
+
+        if (result != nullptr)
+        {
+            recognized = extract_value(result, "text");
+        }
     }
     else
     {
-        result =
-            vosk_recognizer_partial_result(
-                recognizer_);
+        const char *result = vosk_recognizer_partial_result(recognizer_);
+
+        if (result != nullptr)
+        {
+            recognized = extract_value(result, "partial");
+        }
     }
 
-    if (result == nullptr)
+    /*
+     * Require an exact, stable recognition of the wake word.
+     */
+    if (is_exact_wake_word(recognized))
     {
-        return false;
+        ++detection_count_;
+
+        if (detection_count_ >= Config::WAKE_REQUIRED_DETECTIONS)
+        {
+            reset();
+            return true;
+        }
     }
-
-    if (
-        result_contains_wake_word(
-            result))
+    else
     {
-        /*
-         * Prevent the same phrase from being detected
-         * repeatedly from Vosk's existing state.
-         */
-        reset();
-
-        return true;
+        detection_count_ = 0;
     }
 
     return false;
 }
 
-bool WakeWordDetector::result_contains_wake_word(
-    const std::string &result)
-{
-    std::string lower =
-        to_lower(result);
-
-    return (
-        lower.find(
-            wake_word_) !=
-        std::string::npos);
-}
-
 void WakeWordDetector::reset()
 {
+    detection_count_ = 0;
+
     if (recognizer_ != nullptr)
     {
-        vosk_recognizer_reset(
-            recognizer_);
+        vosk_recognizer_reset(recognizer_);
     }
 }

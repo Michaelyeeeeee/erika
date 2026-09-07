@@ -1,4 +1,5 @@
 #include "actions.hpp"
+#include "config.hpp"
 
 #include <chrono>
 #include <csignal>
@@ -15,11 +16,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-Actions::Actions()
-    : feedback_("plughw:CARD=Audio,DEV=0"),
-      cancel_requested_(false),
-      running_(false),
-      active_child_pid_(-1)
+Actions::Actions(const std::string &output_device)
+    : feedback_(output_device), cancel_requested_(false), running_(false), active_child_pid_(-1)
 {
 }
 
@@ -38,22 +36,15 @@ bool Actions::is_running() const
     return running_.load();
 }
 
-void Actions::set_active_child(
-    pid_t pid)
+void Actions::set_active_child(pid_t pid)
 {
-    active_child_pid_.store(
-        pid);
+    active_child_pid_.store(pid);
 }
 
-void Actions::clear_active_child(
-    pid_t pid)
+void Actions::clear_active_child(pid_t pid)
 {
-    pid_t expected =
-        pid;
-
-    active_child_pid_.compare_exchange_strong(
-        expected,
-        -1);
+    pid_t expected = pid;
+    active_child_pid_.compare_exchange_strong(expected, -1);
 }
 
 void Actions::stop()
@@ -61,8 +52,7 @@ void Actions::stop()
     /*
      * Tell current action to stop.
      */
-    cancel_requested_ =
-        true;
+    cancel_requested_ = true;
 
     /*
      * Immediately stop speech.
@@ -73,14 +63,11 @@ void Actions::stop()
      * Terminate a currently tracked child process,
      * such as yt-dlp.
      */
-    pid_t child =
-        active_child_pid_.load();
+    pid_t child = active_child_pid_.load();
 
     if (child > 0)
     {
-        kill(
-            child,
-            SIGTERM);
+        kill(child, SIGTERM);
     }
 
     /*
@@ -91,39 +78,30 @@ void Actions::stop()
         worker_.join();
     }
 
-    active_child_pid_ =
-        -1;
-
-    running_ =
-        false;
+    active_child_pid_ = -1;
+    running_ = false;
 }
 
-void Actions::execute(
-    const ParsedCommand &command)
+void Actions::execute(const ParsedCommand &command)
 {
     /*
      * ---------------------------------------------------------
      * STOP
      * ---------------------------------------------------------
      */
-    if (
-        command.type ==
-        CommandType::STOP)
+    if (command.type == CommandType::STOP)
     {
         stop();
 
-        std::cout
-            << "Stopped current action.\n";
+        std::cout << "Stopped current action.\n";
 
         /*
          * stop() sets cancel_requested_.
          * Reset it so feedback can play.
          */
-        cancel_requested_ =
-            false;
+        cancel_requested_ = false;
 
-        feedback_.speak(
-            "Stopped.");
+        feedback_.speak("Stopped.");
 
         return;
     }
@@ -133,75 +111,55 @@ void Actions::execute(
      */
     stop();
 
-    cancel_requested_ =
-        false;
+    cancel_requested_ = false;
+    running_ = true;
 
-    running_ =
-        true;
-
-    worker_ =
-        std::thread(
-            [this, command]()
-            {
-                execute_action(
-                    command);
-
-                running_ =
-                    false;
-            });
+    worker_ = std::thread([this, command]()
+                          {
+        execute_action(command);
+        running_ = false; });
 }
 
-void Actions::execute_action(
-    const ParsedCommand &command)
+void Actions::execute_action(const ParsedCommand &command)
 {
     switch (command.type)
     {
     case CommandType::GET_TIME:
-    {
         get_time();
         break;
-    }
 
     case CommandType::OPEN_TERMINAL:
-    {
         open_terminal();
         break;
-    }
 
     case CommandType::OPEN_FIREFOX:
-    {
         open_firefox();
         break;
-    }
 
     case CommandType::CLOSE_FIREFOX:
-    {
         close_firefox();
         break;
-    }
+
+    case CommandType::VOLUME_UP:
+        volume_up(std::stoi(command.argument));
+        break;
+
+    case CommandType::VOLUME_DOWN:
+        volume_down(std::stoi(command.argument));
+        break;
 
     case CommandType::PLAY_MUSIC:
-    {
-        play_music(
-            command.argument);
-
+        play_music(command.argument);
         break;
-    }
 
     case CommandType::ASK_GEMINI:
-    {
-        ask_gemini(
-            command.argument);
-
+        ask_gemini(command.argument);
         break;
-    }
 
     case CommandType::STOP:
     case CommandType::UNKNOWN:
     default:
-    {
         break;
-    }
     }
 }
 
@@ -218,31 +176,17 @@ void Actions::get_time()
         return;
     }
 
-    auto now =
-        std::chrono::system_clock::now();
-
-    std::time_t current_time =
-        std::chrono::system_clock::to_time_t(
-            now);
+    auto now = std::chrono::system_clock::now();
+    std::time_t current_time = std::chrono::system_clock::to_time_t(now);
 
     std::tm local_time{};
-
-    localtime_r(
-        &current_time,
-        &local_time);
+    localtime_r(&current_time, &local_time);
 
     std::cout
         << "Current time: "
-        << std::put_time(
-               &local_time,
-               "%I:%M %p")
+        << std::put_time(&local_time, "%I:%M %p")
         << '\n';
 
-    /*
-     * Special feedback for time:
-     *
-     * "The time is 7:42 PM."
-     */
     feedback_.speak_time();
 }
 
@@ -259,17 +203,13 @@ void Actions::open_terminal()
         return;
     }
 
-    std::cout
-        << "Opening terminal...\n";
+    std::cout << "Opening terminal...\n";
 
-    pid_t pid =
-        fork();
+    pid_t pid = fork();
 
     if (pid < 0)
     {
-        std::cerr
-            << "Failed to fork terminal process.\n";
-
+        std::cerr << "Failed to fork terminal process.\n";
         return;
     }
 
@@ -283,9 +223,6 @@ void Actions::open_terminal()
         _exit(1);
     }
 
-    /*
-     * Successful non-Gemini command.
-     */
     feedback_.success();
 }
 
@@ -302,17 +239,13 @@ void Actions::open_firefox()
         return;
     }
 
-    std::cout
-        << "Opening Firefox...\n";
+    std::cout << "Opening Firefox...\n";
 
-    pid_t pid =
-        fork();
+    pid_t pid = fork();
 
     if (pid < 0)
     {
-        std::cerr
-            << "Failed to fork Firefox process.\n";
-
+        std::cerr << "Failed to fork Firefox process.\n";
         return;
     }
 
@@ -344,20 +277,16 @@ void Actions::close_firefox()
         return;
     }
 
-    std::cout
-        << "Closing topmost Firefox window...\n";
+    std::cout << "Closing topmost Firefox window...\n";
 
     /*
      * Focus a Firefox window first.
      */
-    pid_t focus_pid =
-        fork();
+    pid_t focus_pid = fork();
 
     if (focus_pid < 0)
     {
-        std::cerr
-            << "Failed to fork wlrctl focus process.\n";
-
+        std::cerr << "Failed to fork wlrctl focus process.\n";
         return;
     }
 
@@ -375,19 +304,11 @@ void Actions::close_firefox()
     }
 
     int focus_status = 0;
+    waitpid(focus_pid, &focus_status, 0);
 
-    waitpid(
-        focus_pid,
-        &focus_status,
-        0);
-
-    if (
-        !WIFEXITED(focus_status) ||
-        WEXITSTATUS(focus_status) != 0)
+    if (!WIFEXITED(focus_status) || WEXITSTATUS(focus_status) != 0)
     {
-        std::cerr
-            << "Could not focus Firefox.\n";
-
+        std::cerr << "Could not focus Firefox.\n";
         return;
     }
 
@@ -400,20 +321,16 @@ void Actions::close_firefox()
      * Give labwc time to update focus.
      */
     std::this_thread::sleep_for(
-        std::chrono::milliseconds(
-            100));
+        std::chrono::milliseconds(Config::FIREFOX_FOCUS_DELAY_MS));
 
     /*
      * Alt+F4 closes only the focused window.
      */
-    pid_t close_pid =
-        fork();
+    pid_t close_pid = fork();
 
     if (close_pid < 0)
     {
-        std::cerr
-            << "Failed to fork wtype close process.\n";
-
+        std::cerr << "Failed to fork wtype close process.\n";
         return;
     }
 
@@ -434,23 +351,136 @@ void Actions::close_firefox()
     }
 
     int close_status = 0;
+    waitpid(close_pid, &close_status, 0);
 
-    waitpid(
-        close_pid,
-        &close_status,
-        0);
-
-    if (
-        WIFEXITED(close_status) &&
-        WEXITSTATUS(close_status) == 0)
+    if (WIFEXITED(close_status) && WEXITSTATUS(close_status) == 0)
     {
         feedback_.success();
     }
     else
     {
-        std::cerr
-            << "Failed to close Firefox window.\n";
+        std::cerr << "Failed to close Firefox window.\n";
     }
+}
+
+/*
+ * =============================================================
+ * VOLUME
+ * =============================================================
+ */
+
+void Actions::volume_up(int percent)
+{
+    change_volume(percent, true);
+}
+
+void Actions::volume_down(int percent)
+{
+    change_volume(percent, false);
+}
+
+void Actions::change_volume(int percent, bool increase)
+{
+    if (cancelled())
+    {
+        return;
+    }
+
+    if (percent < 0)
+    {
+        percent = -percent;
+    }
+
+    if (percent > 100)
+    {
+        percent = 100;
+    }
+
+    std::string adjustment = std::to_string(percent);
+    adjustment += increase ? "%+" : "%-";
+
+    std::cout
+        << (increase ? "Raising" : "Lowering")
+        << " volume by "
+        << percent
+        << "%...\n";
+
+    pid_t pid = fork();
+
+    if (pid < 0)
+    {
+        std::cerr << "Failed to start wpctl.\n";
+        return;
+    }
+
+    if (pid == 0)
+    {
+        execlp(
+            "wpctl",
+            "wpctl",
+            "set-volume",
+            "@DEFAULT_AUDIO_SINK@",
+            adjustment.c_str(),
+            static_cast<char *>(nullptr));
+
+        _exit(1);
+    }
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+    {
+        feedback_.success();
+    }
+    else
+    {
+        std::cerr << "Failed to change volume.\n";
+    }
+}
+
+/*
+ * =============================================================
+ * PAUSE CURRENT MEDIA
+ * =============================================================
+ */
+
+void Actions::pause_current_media()
+{
+    if (cancelled())
+    {
+        return;
+    }
+
+    std::cout << "Pausing current media...\n";
+
+    pid_t pid = fork();
+
+    if (pid < 0)
+    {
+        std::cerr << "Failed to fork playerctl.\n";
+        return;
+    }
+
+    if (pid == 0)
+    {
+        /*
+         * Pause every active MPRIS player.
+         *
+         * This guarantees that an old YouTube song does not
+         * continue playing underneath the new one.
+         */
+        execlp(
+            "playerctl",
+            "playerctl",
+            "--all-players",
+            "pause",
+            static_cast<char *>(nullptr));
+
+        _exit(1);
+    }
+
+    waitpid(pid, nullptr, 0);
 }
 
 /*
@@ -459,54 +489,40 @@ void Actions::close_firefox()
  * =============================================================
  */
 
-std::string Actions::get_first_youtube_result(
-    const std::string &query)
+std::string Actions::get_first_youtube_result(const std::string &query)
 {
     int pipe_fd[2];
 
     if (pipe(pipe_fd) == -1)
     {
-        std::cerr
-            << "Failed to create yt-dlp pipe.\n";
-
+        std::cerr << "Failed to create yt-dlp pipe.\n";
         return "";
     }
 
-    pid_t pid =
-        fork();
+    pid_t pid = fork();
 
     if (pid < 0)
     {
-        close(
-            pipe_fd[0]);
+        close(pipe_fd[0]);
+        close(pipe_fd[1]);
 
-        close(
-            pipe_fd[1]);
-
-        std::cerr
-            << "Failed to fork yt-dlp.\n";
+        std::cerr << "Failed to fork yt-dlp.\n";
 
         return "";
     }
 
     if (pid == 0)
     {
-        close(
-            pipe_fd[0]);
+        close(pipe_fd[0]);
 
-        if (
-            dup2(
-                pipe_fd[1],
-                STDOUT_FILENO) == -1)
+        if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
         {
             _exit(1);
         }
 
-        close(
-            pipe_fd[1]);
+        close(pipe_fd[1]);
 
-        std::string search =
-            "ytsearch1:" + query;
+        std::string search = "ytsearch1:" + query;
 
         execlp(
             "yt-dlp",
@@ -525,29 +541,20 @@ std::string Actions::get_first_youtube_result(
      * Allow "stop" or a new wake command to
      * terminate yt-dlp.
      */
-    set_active_child(
-        pid);
+    set_active_child(pid);
 
-    close(
-        pipe_fd[1]);
+    close(pipe_fd[1]);
 
     std::string output;
-
     char buffer[512];
 
     while (!cancelled())
     {
-        ssize_t bytes_read =
-            read(
-                pipe_fd[0],
-                buffer,
-                sizeof(buffer));
+        ssize_t bytes_read = read(pipe_fd[0], buffer, sizeof(buffer));
 
         if (bytes_read > 0)
         {
-            output.append(
-                buffer,
-                bytes_read);
+            output.append(buffer, bytes_read);
         }
         else
         {
@@ -555,41 +562,28 @@ std::string Actions::get_first_youtube_result(
         }
     }
 
-    close(
-        pipe_fd[0]);
+    close(pipe_fd[0]);
 
     int status = 0;
+    waitpid(pid, &status, 0);
 
-    waitpid(
-        pid,
-        &status,
-        0);
-
-    clear_active_child(
-        pid);
+    clear_active_child(pid);
 
     if (cancelled())
     {
         return "";
     }
 
-    if (
-        !WIFEXITED(status) ||
-        WEXITSTATUS(status) != 0)
+    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
     {
-        std::cerr
-            << "yt-dlp search failed.\n";
-
+        std::cerr << "yt-dlp search failed.\n";
         return "";
     }
 
     /*
      * Remove newline from yt-dlp result.
      */
-    while (
-        !output.empty() &&
-        (output.back() == '\n' ||
-         output.back() == '\r'))
+    while (!output.empty() && (output.back() == '\n' || output.back() == '\r'))
     {
         output.pop_back();
     }
@@ -603,58 +597,52 @@ std::string Actions::get_first_youtube_result(
  * =============================================================
  */
 
-void Actions::play_music(
-    const std::string &song)
+void Actions::play_music(const std::string &song)
 {
     if (cancelled())
     {
         return;
     }
 
-    std::cout
-        << "Searching YouTube for: "
-        << song
-        << '\n';
-
-    std::string video_url =
-        get_first_youtube_result(
-            song);
+    /*
+     * Pause whatever was previously playing before
+     * starting the replacement song.
+     */
+    pause_current_media();
 
     if (cancelled())
     {
-        std::cout
-            << "YouTube search cancelled.\n";
+        return;
+    }
 
+    std::cout << "Searching YouTube for: " << song << '\n';
+
+    std::string video_url = get_first_youtube_result(song);
+
+    if (cancelled())
+    {
+        std::cout << "YouTube search cancelled.\n";
         return;
     }
 
     if (video_url.empty())
     {
-        std::cerr
-            << "No YouTube video found.\n";
-
+        std::cerr << "No YouTube video found.\n";
         return;
     }
 
-    std::cout
-        << "Found video: "
-        << video_url
-        << '\n';
+    std::cout << "Found video: " << video_url << '\n';
 
     /*
      * Request YouTube autoplay.
      */
-    if (
-        video_url.find('?') !=
-        std::string::npos)
+    if (video_url.find('?') != std::string::npos)
     {
-        video_url +=
-            "&autoplay=1";
+        video_url += "&autoplay=1";
     }
     else
     {
-        video_url +=
-            "?autoplay=1";
+        video_url += "?autoplay=1";
     }
 
     if (cancelled())
@@ -662,14 +650,11 @@ void Actions::play_music(
         return;
     }
 
-    pid_t pid =
-        fork();
+    pid_t pid = fork();
 
     if (pid < 0)
     {
-        std::cerr
-            << "Failed to fork Firefox.\n";
-
+        std::cerr << "Failed to fork Firefox.\n";
         return;
     }
 
@@ -685,9 +670,6 @@ void Actions::play_music(
         _exit(1);
     }
 
-    /*
-     * Successful music command.
-     */
     feedback_.success();
 }
 
@@ -697,43 +679,32 @@ void Actions::play_music(
  * =============================================================
  */
 
-void Actions::ask_gemini(
-    const std::string &question)
+void Actions::ask_gemini(const std::string &question)
 {
-    if (
-        question.empty() ||
-        cancelled())
+    if (question.empty() || cancelled())
     {
         return;
     }
 
-    const std::string response_path =
-        "/tmp/erika_gemini_response.txt";
+    const std::string response_path = "/tmp/erika_gemini_response.txt";
 
     /*
      * Delete previous response.
      */
-    std::remove(
-        response_path.c_str());
+    std::remove(response_path.c_str());
 
-    std::cout
-        << "Asking Gemini: "
-        << question
-        << '\n';
+    std::cout << "Asking Gemini: " << question << '\n';
 
     /*
      * ---------------------------------------------------------
      * Open Ulauncher
      * ---------------------------------------------------------
      */
-    pid_t launcher_pid =
-        fork();
+    pid_t launcher_pid = fork();
 
     if (launcher_pid < 0)
     {
-        std::cerr
-            << "Failed to launch Ulauncher.\n";
-
+        std::cerr << "Failed to launch Ulauncher.\n";
         return;
     }
 
@@ -758,8 +729,7 @@ void Actions::ask_gemini(
         }
 
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(
-                100));
+            std::chrono::milliseconds(Config::ULAUNCHER_FOCUS_DELAY_MS));
     }
 
     /*
@@ -767,17 +737,13 @@ void Actions::ask_gemini(
      * Type Gemini query
      * ---------------------------------------------------------
      */
-    std::string query =
-        "gm " + question;
+    std::string query = "gm " + question;
 
-    pid_t type_pid =
-        fork();
+    pid_t type_pid = fork();
 
     if (type_pid < 0)
     {
-        std::cerr
-            << "Failed to start wtype.\n";
-
+        std::cerr << "Failed to start wtype.\n";
         return;
     }
 
@@ -792,10 +758,7 @@ void Actions::ask_gemini(
         _exit(1);
     }
 
-    waitpid(
-        type_pid,
-        nullptr,
-        0);
+    waitpid(type_pid, nullptr, 0);
 
     if (cancelled())
     {
@@ -807,17 +770,13 @@ void Actions::ask_gemini(
      *
      * Gemini Direct starts automatically.
      */
-    std::cout
-        << "Waiting for Gemini response...\n";
+    std::cout << "Waiting for Gemini response...\n";
 
-    std::string response =
-        wait_for_gemini_response();
+    std::string response = wait_for_gemini_response();
 
     if (cancelled())
     {
-        std::cout
-            << "Gemini request cancelled.\n";
-
+        std::cout << "Gemini request cancelled.\n";
         return;
     }
 
@@ -830,26 +789,19 @@ void Actions::ask_gemini(
 
         /*
          * Read Gemini's response aloud.
-         *
-         * feedback_.speak() blocks this worker thread until
-         * the speech has finished.
          */
-        feedback_.speak(
-            response);
+        feedback_.speak(response);
 
         /*
-         * Close Ulauncher after the response has finished
-         * being spoken.
+         * Close Ulauncher after speech has finished.
          */
         if (!cancelled())
         {
-            pid_t close_launcher_pid =
-                fork();
+            pid_t close_launcher_pid = fork();
 
             if (close_launcher_pid < 0)
             {
-                std::cerr
-                    << "Failed to close Ulauncher.\n";
+                std::cerr << "Failed to close Ulauncher.\n";
             }
             else if (close_launcher_pid == 0)
             {
@@ -862,47 +814,30 @@ void Actions::ask_gemini(
             }
             else
             {
-                waitpid(
-                    close_launcher_pid,
-                    nullptr,
-                    0);
+                waitpid(close_launcher_pid, nullptr, 0);
             }
         }
     }
     else
     {
-        std::cerr
-            << "Timed out waiting for Gemini response.\n";
+        std::cerr << "Timed out waiting for Gemini response.\n";
     }
 }
 
 std::string Actions::wait_for_gemini_response()
 {
-    const std::string path =
-        "/tmp/erika_gemini_response.txt";
+    const std::string path = "/tmp/erika_gemini_response.txt";
 
-    constexpr int timeout_ms =
-        30000;
+    int waited_ms = 0;
 
-    constexpr int poll_ms =
-        100;
-
-    int waited_ms =
-        0;
-
-    while (
-        waited_ms < timeout_ms &&
-        !cancelled())
+    while (waited_ms < Config::GEMINI_TIMEOUT_MS && !cancelled())
     {
-        std::ifstream file(
-            path);
+        std::ifstream file(path);
 
         if (file.good())
         {
             std::string response(
-                (
-                    std::istreambuf_iterator<char>(
-                        file)),
+                (std::istreambuf_iterator<char>(file)),
                 std::istreambuf_iterator<char>());
 
             if (!response.empty())
@@ -912,11 +847,9 @@ std::string Actions::wait_for_gemini_response()
         }
 
         std::this_thread::sleep_for(
-            std::chrono::milliseconds(
-                poll_ms));
+            std::chrono::milliseconds(Config::GEMINI_POLL_MS));
 
-        waited_ms +=
-            poll_ms;
+        waited_ms += Config::GEMINI_POLL_MS;
     }
 
     return "";

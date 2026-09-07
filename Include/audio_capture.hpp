@@ -9,10 +9,7 @@
 class AudioCapture
 {
 public:
-    AudioCapture(
-        const std::string &device,
-        unsigned int sample_rate,
-        unsigned int channels);
+    AudioCapture(const std::string &device, unsigned int sample_rate, unsigned int channels);
 
     ~AudioCapture();
 

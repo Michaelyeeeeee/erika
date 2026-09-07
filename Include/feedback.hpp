@@ -16,16 +16,14 @@ public:
      *   "default"
      *   "plughw:CARD=Device,DEV=0"
      */
-    explicit Feedback(
-        const std::string &speaker_device = "default");
+    explicit Feedback(const std::string &speaker_device = "default");
 
     ~Feedback();
 
     /*
      * Speak arbitrary text.
      */
-    void speak(
-        const std::string &text);
+    void speak(const std::string &text);
 
     /*
      * Standard successful-command response.

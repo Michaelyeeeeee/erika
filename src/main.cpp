@@ -1,6 +1,8 @@
 #include "actions.hpp"
 #include "audio_capture.hpp"
+#include "audio_device.hpp"
 #include "command_handler.hpp"
+#include "config.hpp"
 #include "transcriber.hpp"
 #include "wake_word.hpp"
 
@@ -18,30 +20,23 @@ enum class State
     RECORDING_COMMAND
 };
 
-int main(
-    int argc,
-    char *argv[])
+int main(int argc, char *argv[])
 {
     /*
-     * ---------------------------------------------------------
-     * Shared parser/action objects
-     * ---------------------------------------------------------
+     * =========================================================
+     * AUDIO DEVICE DISCOVERY
+     * =========================================================
      */
+    AudioDevice audio_device;
     CommandHandler command_handler;
-    Actions actions;
+    Actions actions(audio_device.output());
 
     /*
-     * ---------------------------------------------------------
-     * Direct command test
-     *
-     * Example:
-     *
-     *   make test play bohemian rhapsody
-     * ---------------------------------------------------------
+     * =========================================================
+     * DIRECT COMMAND TEST
+     * =========================================================
      */
-    if (
-        argc >= 3 &&
-        std::string(argv[1]) == "--command")
+    if (argc >= 3 && std::string(argv[1]) == "--command")
     {
         std::string text;
 
@@ -55,131 +50,117 @@ int main(
             text += argv[i];
         }
 
-        ParsedCommand command =
-            command_handler.parse(text);
-
+        ParsedCommand command = command_handler.parse(text);
         actions.execute(command);
 
-        /*
-         * Direct test mode waits for asynchronous
-         * action completion.
-         */
         while (actions.is_running())
         {
             std::this_thread::sleep_for(
-                std::chrono::milliseconds(100));
+                std::chrono::milliseconds(Config::ACTION_WAIT_POLL_MS));
         }
 
         return 0;
     }
 
     /*
-     * ---------------------------------------------------------
-     * List commands
-     * ---------------------------------------------------------
+     * =========================================================
+     * LIST COMMANDS
+     * =========================================================
      */
-    if (
-        argc == 2 &&
-        std::string(argv[1]) == "--list-commands")
+    if (argc == 2 && std::string(argv[1]) == "--list-commands")
     {
         CommandHandler::list_commands();
-
         return 0;
     }
 
     /*
-     * ---------------------------------------------------------
-     * Audio configuration
-     * ---------------------------------------------------------
+     * =========================================================
+     * AUDIO
+     * =========================================================
      */
-    constexpr int SAMPLE_RATE = 16000;
-
-    /*
-     * audio_capture.cpp currently reads 400 samples
-     * at a time:
-     *
-     * 400 / 16000 = 25 ms
-     */
-    constexpr int AUDIO_CHUNK_SAMPLES = 400;
-
-    /*
-     * Ignore audio for 200 ms after detecting the
-     * wake phrase.
-     *
-     * This prevents:
-     *
-     *   raspberry -> berry
-     *   raspberry -> barry
-     *
-     * from becoming part of the command.
-     */
-    constexpr int WAKE_GUARD_MS = 400;
-
     constexpr int WAKE_GUARD_CHUNKS =
-        (WAKE_GUARD_MS * SAMPLE_RATE / 1000) /
-        AUDIO_CHUNK_SAMPLES;
+        (Config::WAKE_GUARD_MS * Config::SAMPLE_RATE / 1000) /
+        Config::AUDIO_CHUNK_SAMPLES;
 
-    const std::string model_path =
+    /*
+     * Vosk is only used for the wake phrase.
+     */
+    const std::string wake_model_path =
         "vosk/vosk-model-small-en-us-0.15";
 
     /*
-     * ---------------------------------------------------------
-     * DJI microphone
-     * ---------------------------------------------------------
+     * Multilingual Whisper model.
+     *
+     * Unlike base.en, base can recognize names and
+     * phrases from many different languages.
      */
-    AudioCapture audio(
-        "plughw:CARD=Rx,DEV=0",
-        SAMPLE_RATE,
-        1);
+    const std::string command_model_path =
+        "whisper.cpp/models/ggml-tiny.bin";
+
+    std::cout
+        << "\nErika audio configuration:\n"
+        << "  Input:  " << audio_device.input_name() << '\n'
+        << "          " << audio_device.input() << '\n'
+        << "  Output: " << audio_device.output_name() << '\n'
+        << "          " << audio_device.output() << "\n\n";
+
+    /*
+     * =========================================================
+     * MICROPHONE
+     * =========================================================
+     */
+    AudioCapture audio(audio_device.input(), Config::SAMPLE_RATE, 1);
 
     if (!audio.start())
     {
         std::cerr
-            << "Failed to start microphone.\n";
+            << "Failed to start microphone using:\n"
+            << "  " << audio_device.input() << '\n';
 
         return 1;
     }
 
     /*
-     * ---------------------------------------------------------
-     * Speech recognizers
-     * ---------------------------------------------------------
+     * =========================================================
+     * RECOGNIZERS
+     * =========================================================
      */
-    WakeWordDetector wake_detector(
-        model_path,
-        "hey jamal",
-        static_cast<float>(SAMPLE_RATE));
+    std::cout << "Loading Vosk wake-word model...\n";
 
-    Transcriber transcriber(
-        model_path,
-        static_cast<float>(SAMPLE_RATE));
+    WakeWordDetector wake_detector(
+        wake_model_path,
+        "hey jamal",
+        static_cast<float>(Config::SAMPLE_RATE));
+
+    std::cout << "Loading multilingual Whisper base model...\n";
+
+    Transcriber transcriber(command_model_path, Config::SAMPLE_RATE);
+
+    std::cout << "Speech models loaded.\n\n";
 
     /*
-     * ---------------------------------------------------------
-     * Audio buffers
-     * ---------------------------------------------------------
+     * =========================================================
+     * BUFFERS
+     * =========================================================
      */
     std::vector<int16_t> samples;
     std::vector<int16_t> command_audio;
 
-    State state =
-        State::WAITING_FOR_WAKE;
-
+    State state = State::WAITING_FOR_WAKE;
     int wake_guard_chunks = 0;
 
     std::cout
-        << "DJI microphone opened.\n"
-        << "Listening for: hey raspberry\n\n";
+        << "Microphone opened.\n"
+        << "Listening for: hey jamal\n\n";
 
     /*
-     * ---------------------------------------------------------
-     * Main microphone loop
-     * ---------------------------------------------------------
+     * =========================================================
+     * MAIN LOOP
+     * =========================================================
      */
     while (true)
     {
-        int count =
-            audio.read(samples);
+        int count = audio.read(samples);
 
         if (count <= 0)
         {
@@ -190,12 +171,6 @@ int main(
          * =====================================================
          * WAKE GUARD
          * =====================================================
-         *
-         * Do NOT run either recognizer during this short
-         * window.
-         *
-         * We're intentionally throwing away the end of the
-         * wake phrase.
          */
         if (state == State::WAKE_GUARD)
         {
@@ -205,38 +180,23 @@ int main(
                 continue;
             }
 
-            /*
-             * Wake phrase should now be completely finished.
-             */
             transcriber.reset();
+            state = State::RECORDING_COMMAND;
 
-            state =
-                State::RECORDING_COMMAND;
-
-            continue;
+            /*
+             * Do not continue here.
+             *
+             * This first post-guard chunk can immediately
+             * become the beginning of the command.
+             */
         }
 
         /*
          * =====================================================
-         * ALWAYS CHECK FOR A NEW WAKE WORD
+         * WAKE WORD
          * =====================================================
-         *
-         * This happens while:
-         *
-         *   - waiting normally
-         *   - recording another command
-         *   - another asynchronous action is running
-         *
-         * This is what allows:
-         *
-         *   hey raspberry ...
-         *
-         * to interrupt the previous command.
          */
-        bool wake_detected =
-            wake_detector.process(
-                samples.data(),
-                count);
+        bool wake_detected = wake_detector.process(samples.data(), count);
 
         if (wake_detected)
         {
@@ -244,42 +204,26 @@ int main(
                 << "\n"
                 << "*** WAKE WORD DETECTED ***\n";
 
-            /*
-             * Interrupt the current action.
-             */
             if (actions.is_running())
             {
-                std::cout
-                    << "Interrupting current action...\n";
-
+                std::cout << "Interrupting current action...\n";
                 actions.stop();
             }
 
-            /*
-             * Discard any command currently being recorded.
-             */
             command_audio.clear();
-
             transcriber.reset();
 
-            /*
-             * Ignore the next 200 ms.
-             */
-            wake_guard_chunks =
-                WAKE_GUARD_CHUNKS;
+            wake_guard_chunks = WAKE_GUARD_CHUNKS;
+            state = State::WAKE_GUARD;
 
-            state =
-                State::WAKE_GUARD;
-
-            std::cout
-                << "Listening for command...\n\n";
+            std::cout << "Listening for command...\n\n";
 
             continue;
         }
 
         /*
          * =====================================================
-         * WAITING FOR WAKE
+         * WAITING
          * =====================================================
          */
         if (state == State::WAITING_FOR_WAKE)
@@ -294,87 +238,49 @@ int main(
          */
         if (state == State::RECORDING_COMMAND)
         {
-            /*
-             * Save raw command audio into RAM.
-             */
             command_audio.insert(
                 command_audio.end(),
                 samples.begin(),
                 samples.begin() + count);
 
-            /*
-             * Feed command audio into Vosk.
-             */
-            bool sentence_finished =
-                transcriber.process(
-                    samples.data(),
-                    count);
+            bool sentence_finished = transcriber.process(samples.data(), count);
 
             if (!sentence_finished)
             {
                 continue;
             }
 
-            /*
-             * Vosk detected the end of the command.
-             */
-            std::string text =
-                transcriber.get_result();
+            std::cout << "Transcribing with Whisper...\n";
+
+            std::string text = transcriber.get_result();
 
             if (!text.empty())
             {
-                std::cout
-                    << "Recognized command: "
-                    << text
-                    << '\n';
+                std::cout << "Recognized command: " << text << '\n';
 
-                ParsedCommand command =
-                    command_handler.parse(
-                        text);
-
-                /*
-                 * Action starts asynchronously, so
-                 * microphone processing continues.
-                 */
-                actions.execute(
-                    command);
+                ParsedCommand command = command_handler.parse(text);
+                actions.execute(command);
             }
             else
             {
-                std::cout
-                    << "No command recognized.\n";
+                std::cout << "No command recognized.\n";
             }
 
-            /*
-             * Diagnostics.
-             */
             double seconds =
-                static_cast<double>(
-                    command_audio.size()) /
-                SAMPLE_RATE;
-
-            std::cout
-                << "Command buffer contains "
-                << command_audio.size()
-                << " samples.\n";
+                static_cast<double>(command_audio.size()) /
+                Config::SAMPLE_RATE;
 
             std::cout
                 << "Command length: "
                 << seconds
                 << " seconds\n\n";
 
-            /*
-             * Prepare for next wake phrase.
-             */
             command_audio.clear();
-
             transcriber.reset();
 
-            state =
-                State::WAITING_FOR_WAKE;
+            state = State::WAITING_FOR_WAKE;
 
-            std::cout
-                << "Listening for: hey raspberry\n\n";
+            std::cout << "Listening for: hey jamal\n\n";
         }
     }
 

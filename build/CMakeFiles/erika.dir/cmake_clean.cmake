@@ -4,6 +4,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/erika.dir/src/actions.cpp.o.d"
   "CMakeFiles/erika.dir/src/audio_capture.cpp.o"
   "CMakeFiles/erika.dir/src/audio_capture.cpp.o.d"
+  "CMakeFiles/erika.dir/src/audio_device.cpp.o"
+  "CMakeFiles/erika.dir/src/audio_device.cpp.o.d"
   "CMakeFiles/erika.dir/src/command_handler.cpp.o"
   "CMakeFiles/erika.dir/src/command_handler.cpp.o.d"
   "CMakeFiles/erika.dir/src/feedback.cpp.o"

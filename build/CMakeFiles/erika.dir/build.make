@@ -86,10 +86,24 @@ CMakeFiles/erika.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/erika.dir/src/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/michaelwu/erika/src/main.cpp -o CMakeFiles/erika.dir/src/main.cpp.s
 
+CMakeFiles/erika.dir/src/audio_device.cpp.o: CMakeFiles/erika.dir/flags.make
+CMakeFiles/erika.dir/src/audio_device.cpp.o: /home/michaelwu/erika/src/audio_device.cpp
+CMakeFiles/erika.dir/src/audio_device.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/erika.dir/src/audio_device.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/audio_device.cpp.o -MF CMakeFiles/erika.dir/src/audio_device.cpp.o.d -o CMakeFiles/erika.dir/src/audio_device.cpp.o -c /home/michaelwu/erika/src/audio_device.cpp
+
+CMakeFiles/erika.dir/src/audio_device.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/erika.dir/src/audio_device.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/michaelwu/erika/src/audio_device.cpp > CMakeFiles/erika.dir/src/audio_device.cpp.i
+
+CMakeFiles/erika.dir/src/audio_device.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/erika.dir/src/audio_device.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/michaelwu/erika/src/audio_device.cpp -o CMakeFiles/erika.dir/src/audio_device.cpp.s
+
 CMakeFiles/erika.dir/src/audio_capture.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/audio_capture.cpp.o: /home/michaelwu/erika/src/audio_capture.cpp
 CMakeFiles/erika.dir/src/audio_capture.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/erika.dir/src/audio_capture.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/erika.dir/src/audio_capture.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/audio_capture.cpp.o -MF CMakeFiles/erika.dir/src/audio_capture.cpp.o.d -o CMakeFiles/erika.dir/src/audio_capture.cpp.o -c /home/michaelwu/erika/src/audio_capture.cpp
 
 CMakeFiles/erika.dir/src/audio_capture.cpp.i: cmake_force
@@ -103,7 +117,7 @@ CMakeFiles/erika.dir/src/audio_capture.cpp.s: cmake_force
 CMakeFiles/erika.dir/src/wake_word.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/wake_word.cpp.o: /home/michaelwu/erika/src/wake_word.cpp
 CMakeFiles/erika.dir/src/wake_word.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/erika.dir/src/wake_word.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/erika.dir/src/wake_word.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/wake_word.cpp.o -MF CMakeFiles/erika.dir/src/wake_word.cpp.o.d -o CMakeFiles/erika.dir/src/wake_word.cpp.o -c /home/michaelwu/erika/src/wake_word.cpp
 
 CMakeFiles/erika.dir/src/wake_word.cpp.i: cmake_force
@@ -117,7 +131,7 @@ CMakeFiles/erika.dir/src/wake_word.cpp.s: cmake_force
 CMakeFiles/erika.dir/src/transcriber.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/transcriber.cpp.o: /home/michaelwu/erika/src/transcriber.cpp
 CMakeFiles/erika.dir/src/transcriber.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/erika.dir/src/transcriber.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/erika.dir/src/transcriber.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/transcriber.cpp.o -MF CMakeFiles/erika.dir/src/transcriber.cpp.o.d -o CMakeFiles/erika.dir/src/transcriber.cpp.o -c /home/michaelwu/erika/src/transcriber.cpp
 
 CMakeFiles/erika.dir/src/transcriber.cpp.i: cmake_force
@@ -131,7 +145,7 @@ CMakeFiles/erika.dir/src/transcriber.cpp.s: cmake_force
 CMakeFiles/erika.dir/src/command_handler.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/command_handler.cpp.o: /home/michaelwu/erika/src/command_handler.cpp
 CMakeFiles/erika.dir/src/command_handler.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/erika.dir/src/command_handler.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/erika.dir/src/command_handler.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/command_handler.cpp.o -MF CMakeFiles/erika.dir/src/command_handler.cpp.o.d -o CMakeFiles/erika.dir/src/command_handler.cpp.o -c /home/michaelwu/erika/src/command_handler.cpp
 
 CMakeFiles/erika.dir/src/command_handler.cpp.i: cmake_force
@@ -145,7 +159,7 @@ CMakeFiles/erika.dir/src/command_handler.cpp.s: cmake_force
 CMakeFiles/erika.dir/src/actions.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/actions.cpp.o: /home/michaelwu/erika/src/actions.cpp
 CMakeFiles/erika.dir/src/actions.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/erika.dir/src/actions.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/erika.dir/src/actions.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/actions.cpp.o -MF CMakeFiles/erika.dir/src/actions.cpp.o.d -o CMakeFiles/erika.dir/src/actions.cpp.o -c /home/michaelwu/erika/src/actions.cpp
 
 CMakeFiles/erika.dir/src/actions.cpp.i: cmake_force
@@ -159,7 +173,7 @@ CMakeFiles/erika.dir/src/actions.cpp.s: cmake_force
 CMakeFiles/erika.dir/src/feedback.cpp.o: CMakeFiles/erika.dir/flags.make
 CMakeFiles/erika.dir/src/feedback.cpp.o: /home/michaelwu/erika/src/feedback.cpp
 CMakeFiles/erika.dir/src/feedback.cpp.o: CMakeFiles/erika.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/erika.dir/src/feedback.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/erika.dir/src/feedback.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/erika.dir/src/feedback.cpp.o -MF CMakeFiles/erika.dir/src/feedback.cpp.o.d -o CMakeFiles/erika.dir/src/feedback.cpp.o -c /home/michaelwu/erika/src/feedback.cpp
 
 CMakeFiles/erika.dir/src/feedback.cpp.i: cmake_force
@@ -173,6 +187,7 @@ CMakeFiles/erika.dir/src/feedback.cpp.s: cmake_force
 # Object files for target erika
 erika_OBJECTS = \
 "CMakeFiles/erika.dir/src/main.cpp.o" \
+"CMakeFiles/erika.dir/src/audio_device.cpp.o" \
 "CMakeFiles/erika.dir/src/audio_capture.cpp.o" \
 "CMakeFiles/erika.dir/src/wake_word.cpp.o" \
 "CMakeFiles/erika.dir/src/transcriber.cpp.o" \
@@ -184,6 +199,7 @@ erika_OBJECTS = \
 erika_EXTERNAL_OBJECTS =
 
 erika: CMakeFiles/erika.dir/src/main.cpp.o
+erika: CMakeFiles/erika.dir/src/audio_device.cpp.o
 erika: CMakeFiles/erika.dir/src/audio_capture.cpp.o
 erika: CMakeFiles/erika.dir/src/wake_word.cpp.o
 erika: CMakeFiles/erika.dir/src/transcriber.cpp.o
@@ -192,9 +208,13 @@ erika: CMakeFiles/erika.dir/src/actions.cpp.o
 erika: CMakeFiles/erika.dir/src/feedback.cpp.o
 erika: CMakeFiles/erika.dir/build.make
 erika: CMakeFiles/erika.dir/compiler_depend.ts
+erika: bin/libwhisper.so.1.9.3
 erika: /usr/lib/aarch64-linux-gnu/libasound.so
+erika: bin/libggml.so.0.23.0
+erika: bin/libggml-cpu.so.0.23.0
+erika: bin/libggml-base.so.0.23.0
 erika: CMakeFiles/erika.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Linking CXX executable erika"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking CXX executable erika"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/erika.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

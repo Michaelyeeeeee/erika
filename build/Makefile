@@ -85,6 +85,51 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+.PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
 # The main all target
 all: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles /home/michaelwu/erika/build//CMakeFiles/progress.marks
@@ -128,6 +173,71 @@ erika: cmake_check_build_system
 erika/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/build
 .PHONY : erika/fast
+
+#=============================================================================
+# Target rules for targets named ggml-base
+
+# Build rule for target.
+ggml-base: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ggml-base
+.PHONY : ggml-base
+
+# fast build rule for target.
+ggml-base/fast:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build
+.PHONY : ggml-base/fast
+
+#=============================================================================
+# Target rules for targets named ggml
+
+# Build rule for target.
+ggml: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ggml
+.PHONY : ggml
+
+# fast build rule for target.
+ggml/fast:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml.dir/build
+.PHONY : ggml/fast
+
+#=============================================================================
+# Target rules for targets named ggml-cpu
+
+# Build rule for target.
+ggml-cpu: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ggml-cpu
+.PHONY : ggml-cpu
+
+# fast build rule for target.
+ggml-cpu/fast:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build
+.PHONY : ggml-cpu/fast
+
+#=============================================================================
+# Target rules for targets named whisper
+
+# Build rule for target.
+whisper: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper
+.PHONY : whisper
+
+# fast build rule for target.
+whisper/fast:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/whisper.dir/build.make whisper-build/src/CMakeFiles/whisper.dir/build
+.PHONY : whisper/fast
+
+#=============================================================================
+# Target rules for targets named parakeet
+
+# Build rule for target.
+parakeet: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 parakeet
+.PHONY : parakeet
+
+# fast build rule for target.
+parakeet/fast:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/parakeet.dir/build.make whisper-build/src/CMakeFiles/parakeet.dir/build
+.PHONY : parakeet/fast
 
 src/actions.o: src/actions.cpp.o
 .PHONY : src/actions.o
@@ -176,6 +286,30 @@ src/audio_capture.s: src/audio_capture.cpp.s
 src/audio_capture.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/src/audio_capture.cpp.s
 .PHONY : src/audio_capture.cpp.s
+
+src/audio_device.o: src/audio_device.cpp.o
+.PHONY : src/audio_device.o
+
+# target to build an object file
+src/audio_device.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/src/audio_device.cpp.o
+.PHONY : src/audio_device.cpp.o
+
+src/audio_device.i: src/audio_device.cpp.i
+.PHONY : src/audio_device.i
+
+# target to preprocess a source file
+src/audio_device.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/src/audio_device.cpp.i
+.PHONY : src/audio_device.cpp.i
+
+src/audio_device.s: src/audio_device.cpp.s
+.PHONY : src/audio_device.s
+
+# target to generate assembly for a file
+src/audio_device.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/src/audio_device.cpp.s
+.PHONY : src/audio_device.cpp.s
 
 src/command_handler.o: src/command_handler.cpp.o
 .PHONY : src/command_handler.o
@@ -304,14 +438,26 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... edit_cache"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... install/strip"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... erika"
+	@echo "... ggml"
+	@echo "... ggml-base"
+	@echo "... ggml-cpu"
+	@echo "... parakeet"
+	@echo "... whisper"
 	@echo "... src/actions.o"
 	@echo "... src/actions.i"
 	@echo "... src/actions.s"
 	@echo "... src/audio_capture.o"
 	@echo "... src/audio_capture.i"
 	@echo "... src/audio_capture.s"
+	@echo "... src/audio_device.o"
+	@echo "... src/audio_device.i"
+	@echo "... src/audio_device.s"
 	@echo "... src/command_handler.o"
 	@echo "... src/command_handler.i"
 	@echo "... src/command_handler.s"

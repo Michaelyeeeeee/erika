@@ -1,15 +1,10 @@
 #include "audio_capture.hpp"
+#include "config.hpp"
 
 #include <iostream>
 
-AudioCapture::AudioCapture(
-    const std::string &device,
-    unsigned int sample_rate,
-    unsigned int channels)
-    : pcm_(nullptr),
-      device_(device),
-      sample_rate_(sample_rate),
-      channels_(channels)
+AudioCapture::AudioCapture(const std::string &device, unsigned int sample_rate, unsigned int channels)
+    : pcm_(nullptr), device_(device), sample_rate_(sample_rate), channels_(channels)
 {
 }
 
@@ -20,19 +15,11 @@ AudioCapture::~AudioCapture()
 
 bool AudioCapture::start()
 {
-    int err = snd_pcm_open(
-        &pcm_,
-        device_.c_str(),
-        SND_PCM_STREAM_CAPTURE,
-        0);
+    int err = snd_pcm_open(&pcm_, device_.c_str(), SND_PCM_STREAM_CAPTURE, 0);
 
     if (err < 0)
     {
-        std::cerr
-            << "Failed to open ALSA device: "
-            << snd_strerror(err)
-            << '\n';
-
+        std::cerr << "Failed to open ALSA device: " << snd_strerror(err) << '\n';
         return false;
     }
 
@@ -61,10 +48,7 @@ bool AudioCapture::start()
 
     if (err < 0)
     {
-        std::cerr
-            << "Failed to configure ALSA: "
-            << snd_strerror(err)
-            << '\n';
+        std::cerr << "Failed to configure ALSA: " << snd_strerror(err) << '\n';
 
         stop();
         return false;
@@ -90,34 +74,22 @@ int AudioCapture::read(std::vector<int16_t> &buffer)
         return -1;
     }
 
-    constexpr int frames = 400;
+    constexpr int frames = Config::AUDIO_CHUNK_SAMPLES;
 
     buffer.resize(frames * channels_);
 
-    snd_pcm_sframes_t nframes =
-        snd_pcm_readi(
-            pcm_,
-            buffer.data(),
-            frames);
+    snd_pcm_sframes_t nframes = snd_pcm_readi(pcm_, buffer.data(), frames);
 
     if (nframes < 0)
     {
-        nframes = snd_pcm_recover(
-            pcm_,
-            static_cast<int>(nframes),
-            1);
+        nframes = snd_pcm_recover(pcm_, static_cast<int>(nframes), 1);
 
         if (nframes < 0)
         {
-            std::cerr
-                << "ALSA read error: "
-                << snd_strerror(nframes)
-                << '\n';
-
+            std::cerr << "ALSA read error: " << snd_strerror(nframes) << '\n';
             return -1;
         }
     }
 
-    return static_cast<int>(
-        nframes * channels_);
+    return static_cast<int>(nframes * channels_);
 }

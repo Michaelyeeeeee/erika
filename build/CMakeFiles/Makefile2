@@ -64,33 +64,150 @@ CMAKE_BINARY_DIR = /home/michaelwu/erika/build
 
 # The main recursive "all" target.
 all: CMakeFiles/erika.dir/all
+all: whisper-build/all
 .PHONY : all
 
 # The main recursive "codegen" target.
 codegen: CMakeFiles/erika.dir/codegen
+codegen: whisper-build/codegen
 .PHONY : codegen
 
 # The main recursive "preinstall" target.
-preinstall:
+preinstall: whisper-build/preinstall
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/erika.dir/clean
+clean: whisper-build/clean
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory whisper-build
+
+# Recursive "all" directory target.
+whisper-build/all: whisper-build/ggml/all
+whisper-build/all: whisper-build/src/all
+.PHONY : whisper-build/all
+
+# Recursive "codegen" directory target.
+whisper-build/codegen: whisper-build/ggml/codegen
+whisper-build/codegen: whisper-build/src/codegen
+.PHONY : whisper-build/codegen
+
+# Recursive "preinstall" directory target.
+whisper-build/preinstall: whisper-build/ggml/preinstall
+whisper-build/preinstall: whisper-build/src/preinstall
+.PHONY : whisper-build/preinstall
+
+# Recursive "clean" directory target.
+whisper-build/clean: whisper-build/ggml/clean
+whisper-build/clean: whisper-build/src/clean
+.PHONY : whisper-build/clean
+
+#=============================================================================
+# Directory level rules for directory whisper-build/ggml
+
+# Recursive "all" directory target.
+whisper-build/ggml/all: whisper-build/ggml/src/all
+.PHONY : whisper-build/ggml/all
+
+# Recursive "codegen" directory target.
+whisper-build/ggml/codegen: whisper-build/ggml/src/codegen
+.PHONY : whisper-build/ggml/codegen
+
+# Recursive "preinstall" directory target.
+whisper-build/ggml/preinstall: whisper-build/ggml/src/preinstall
+.PHONY : whisper-build/ggml/preinstall
+
+# Recursive "clean" directory target.
+whisper-build/ggml/clean: whisper-build/ggml/src/clean
+.PHONY : whisper-build/ggml/clean
+
+#=============================================================================
+# Directory level rules for directory whisper-build/ggml/src
+
+# Recursive "all" directory target.
+whisper-build/ggml/src/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+whisper-build/ggml/src/all: whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+whisper-build/ggml/src/all: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+whisper-build/ggml/src/all: whisper-build/ggml/src/ggml-cpu/all
+.PHONY : whisper-build/ggml/src/all
+
+# Recursive "codegen" directory target.
+whisper-build/ggml/src/codegen: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/codegen
+whisper-build/ggml/src/codegen: whisper-build/ggml/src/CMakeFiles/ggml.dir/codegen
+whisper-build/ggml/src/codegen: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/codegen
+whisper-build/ggml/src/codegen: whisper-build/ggml/src/ggml-cpu/codegen
+.PHONY : whisper-build/ggml/src/codegen
+
+# Recursive "preinstall" directory target.
+whisper-build/ggml/src/preinstall: whisper-build/ggml/src/ggml-cpu/preinstall
+.PHONY : whisper-build/ggml/src/preinstall
+
+# Recursive "clean" directory target.
+whisper-build/ggml/src/clean: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/clean
+whisper-build/ggml/src/clean: whisper-build/ggml/src/CMakeFiles/ggml.dir/clean
+whisper-build/ggml/src/clean: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/clean
+whisper-build/ggml/src/clean: whisper-build/ggml/src/ggml-cpu/clean
+.PHONY : whisper-build/ggml/src/clean
+
+#=============================================================================
+# Directory level rules for directory whisper-build/ggml/src/ggml-cpu
+
+# Recursive "all" directory target.
+whisper-build/ggml/src/ggml-cpu/all:
+.PHONY : whisper-build/ggml/src/ggml-cpu/all
+
+# Recursive "codegen" directory target.
+whisper-build/ggml/src/ggml-cpu/codegen:
+.PHONY : whisper-build/ggml/src/ggml-cpu/codegen
+
+# Recursive "preinstall" directory target.
+whisper-build/ggml/src/ggml-cpu/preinstall:
+.PHONY : whisper-build/ggml/src/ggml-cpu/preinstall
+
+# Recursive "clean" directory target.
+whisper-build/ggml/src/ggml-cpu/clean:
+.PHONY : whisper-build/ggml/src/ggml-cpu/clean
+
+#=============================================================================
+# Directory level rules for directory whisper-build/src
+
+# Recursive "all" directory target.
+whisper-build/src/all: whisper-build/src/CMakeFiles/whisper.dir/all
+whisper-build/src/all: whisper-build/src/CMakeFiles/parakeet.dir/all
+.PHONY : whisper-build/src/all
+
+# Recursive "codegen" directory target.
+whisper-build/src/codegen: whisper-build/src/CMakeFiles/whisper.dir/codegen
+whisper-build/src/codegen: whisper-build/src/CMakeFiles/parakeet.dir/codegen
+.PHONY : whisper-build/src/codegen
+
+# Recursive "preinstall" directory target.
+whisper-build/src/preinstall:
+.PHONY : whisper-build/src/preinstall
+
+# Recursive "clean" directory target.
+whisper-build/src/clean: whisper-build/src/CMakeFiles/whisper.dir/clean
+whisper-build/src/clean: whisper-build/src/CMakeFiles/parakeet.dir/clean
+.PHONY : whisper-build/src/clean
 
 #=============================================================================
 # Target rules for target CMakeFiles/erika.dir
 
 # All Build rule for target.
-CMakeFiles/erika.dir/all:
+CMakeFiles/erika.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+CMakeFiles/erika.dir/all: whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+CMakeFiles/erika.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+CMakeFiles/erika.dir/all: whisper-build/src/CMakeFiles/whisper.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target erika"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Built target erika"
 .PHONY : CMakeFiles/erika.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/erika.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 8
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 40
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/erika.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
 .PHONY : CMakeFiles/erika.dir/rule
@@ -102,13 +219,178 @@ erika: CMakeFiles/erika.dir/rule
 # codegen rule for target.
 CMakeFiles/erika.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Finished codegen for target erika"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9 "Finished codegen for target erika"
 .PHONY : CMakeFiles/erika.dir/codegen
 
 # clean rule for target.
 CMakeFiles/erika.dir/clean:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/erika.dir/build.make CMakeFiles/erika.dir/clean
 .PHONY : CMakeFiles/erika.dir/clean
+
+#=============================================================================
+# Target rules for target whisper-build/ggml/src/CMakeFiles/ggml-base.dir
+
+# All Build rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-base.dir/depend
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=13,14,15,16,17,18,19,20,21,22 "Built target ggml-base"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+
+# Build rule for subdir invocation for target.
+whisper-build/ggml/src/CMakeFiles/ggml-base.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 10
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-base.dir/rule
+
+# Convenience name for target.
+ggml-base: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/rule
+.PHONY : ggml-base
+
+# codegen rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-base.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-base.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=13,14,15,16,17,18,19,20,21,22 "Finished codegen for target ggml-base"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-base.dir/codegen
+
+# clean rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-base.dir/clean:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-base.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-base.dir/clean
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-base.dir/clean
+
+#=============================================================================
+# Target rules for target whisper-build/ggml/src/CMakeFiles/ggml.dir
+
+# All Build rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+whisper-build/ggml/src/CMakeFiles/ggml.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml.dir/depend
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=10,11,12 "Built target ggml"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+
+# Build rule for subdir invocation for target.
+whisper-build/ggml/src/CMakeFiles/ggml.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 29
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml.dir/rule
+
+# Convenience name for target.
+ggml: whisper-build/ggml/src/CMakeFiles/ggml.dir/rule
+.PHONY : ggml
+
+# codegen rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=10,11,12 "Finished codegen for target ggml"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml.dir/codegen
+
+# clean rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml.dir/clean:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml.dir/clean
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml.dir/clean
+
+#=============================================================================
+# Target rules for target whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir
+
+# All Build rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/depend
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38 "Built target ggml-cpu"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+
+# Build rule for subdir invocation for target.
+whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 26
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/rule
+
+# Convenience name for target.
+ggml-cpu: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/rule
+.PHONY : ggml-cpu
+
+# codegen rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38 "Finished codegen for target ggml-cpu"
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/codegen
+
+# clean rule for target.
+whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/clean:
+	$(MAKE) $(MAKESILENT) -f whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/build.make whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/clean
+.PHONY : whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/clean
+
+#=============================================================================
+# Target rules for target whisper-build/src/CMakeFiles/whisper.dir
+
+# All Build rule for target.
+whisper-build/src/CMakeFiles/whisper.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+whisper-build/src/CMakeFiles/whisper.dir/all: whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+whisper-build/src/CMakeFiles/whisper.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/whisper.dir/build.make whisper-build/src/CMakeFiles/whisper.dir/depend
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/whisper.dir/build.make whisper-build/src/CMakeFiles/whisper.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=41,42 "Built target whisper"
+.PHONY : whisper-build/src/CMakeFiles/whisper.dir/all
+
+# Build rule for subdir invocation for target.
+whisper-build/src/CMakeFiles/whisper.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 31
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper-build/src/CMakeFiles/whisper.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
+.PHONY : whisper-build/src/CMakeFiles/whisper.dir/rule
+
+# Convenience name for target.
+whisper: whisper-build/src/CMakeFiles/whisper.dir/rule
+.PHONY : whisper
+
+# codegen rule for target.
+whisper-build/src/CMakeFiles/whisper.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/whisper.dir/build.make whisper-build/src/CMakeFiles/whisper.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=41,42 "Finished codegen for target whisper"
+.PHONY : whisper-build/src/CMakeFiles/whisper.dir/codegen
+
+# clean rule for target.
+whisper-build/src/CMakeFiles/whisper.dir/clean:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/whisper.dir/build.make whisper-build/src/CMakeFiles/whisper.dir/clean
+.PHONY : whisper-build/src/CMakeFiles/whisper.dir/clean
+
+#=============================================================================
+# Target rules for target whisper-build/src/CMakeFiles/parakeet.dir
+
+# All Build rule for target.
+whisper-build/src/CMakeFiles/parakeet.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-base.dir/all
+whisper-build/src/CMakeFiles/parakeet.dir/all: whisper-build/ggml/src/CMakeFiles/ggml.dir/all
+whisper-build/src/CMakeFiles/parakeet.dir/all: whisper-build/ggml/src/CMakeFiles/ggml-cpu.dir/all
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/parakeet.dir/build.make whisper-build/src/CMakeFiles/parakeet.dir/depend
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/parakeet.dir/build.make whisper-build/src/CMakeFiles/parakeet.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=39,40 "Built target parakeet"
+.PHONY : whisper-build/src/CMakeFiles/parakeet.dir/all
+
+# Build rule for subdir invocation for target.
+whisper-build/src/CMakeFiles/parakeet.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 31
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 whisper-build/src/CMakeFiles/parakeet.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/michaelwu/erika/build/CMakeFiles 0
+.PHONY : whisper-build/src/CMakeFiles/parakeet.dir/rule
+
+# Convenience name for target.
+parakeet: whisper-build/src/CMakeFiles/parakeet.dir/rule
+.PHONY : parakeet
+
+# codegen rule for target.
+whisper-build/src/CMakeFiles/parakeet.dir/codegen:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/parakeet.dir/build.make whisper-build/src/CMakeFiles/parakeet.dir/codegen
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/michaelwu/erika/build/CMakeFiles --progress-num=39,40 "Finished codegen for target parakeet"
+.PHONY : whisper-build/src/CMakeFiles/parakeet.dir/codegen
+
+# clean rule for target.
+whisper-build/src/CMakeFiles/parakeet.dir/clean:
+	$(MAKE) $(MAKESILENT) -f whisper-build/src/CMakeFiles/parakeet.dir/build.make whisper-build/src/CMakeFiles/parakeet.dir/clean
+.PHONY : whisper-build/src/CMakeFiles/parakeet.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

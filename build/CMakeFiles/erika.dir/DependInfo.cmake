@@ -10,6 +10,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/michaelwu/erika/src/actions.cpp" "CMakeFiles/erika.dir/src/actions.cpp.o" "gcc" "CMakeFiles/erika.dir/src/actions.cpp.o.d"
   "/home/michaelwu/erika/src/audio_capture.cpp" "CMakeFiles/erika.dir/src/audio_capture.cpp.o" "gcc" "CMakeFiles/erika.dir/src/audio_capture.cpp.o.d"
+  "/home/michaelwu/erika/src/audio_device.cpp" "CMakeFiles/erika.dir/src/audio_device.cpp.o" "gcc" "CMakeFiles/erika.dir/src/audio_device.cpp.o.d"
   "/home/michaelwu/erika/src/command_handler.cpp" "CMakeFiles/erika.dir/src/command_handler.cpp.o" "gcc" "CMakeFiles/erika.dir/src/command_handler.cpp.o.d"
   "/home/michaelwu/erika/src/feedback.cpp" "CMakeFiles/erika.dir/src/feedback.cpp.o" "gcc" "CMakeFiles/erika.dir/src/feedback.cpp.o.d"
   "/home/michaelwu/erika/src/main.cpp" "CMakeFiles/erika.dir/src/main.cpp.o" "gcc" "CMakeFiles/erika.dir/src/main.cpp.o.d"

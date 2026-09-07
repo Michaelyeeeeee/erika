@@ -1,36 +1,50 @@
 #pragma once
 
-#include <cstdint>
-#include <string>
+#include "config.hpp"
 
-struct VoskModel;
-struct VoskRecognizer;
+#include <cstdint>
+#include <deque>
+#include <string>
+#include <vector>
+
+struct whisper_context;
 
 class Transcriber
 {
 public:
-    Transcriber(
-        const std::string &model_path,
-        float sample_rate = 16000.0f);
+    Transcriber(const std::string &model_path, int sample_rate = Config::SAMPLE_RATE);
 
     ~Transcriber();
 
-    // Feed microphone samples into the recognizer.
-    // Returns true when Vosk thinks the sentence is complete.
-    bool process(
-        const int16_t *samples,
-        int sample_count);
+    bool process(const int16_t *samples, int sample_count);
 
-    // Get the recognized sentence.
     std::string get_result();
 
-    // Reset before listening for a new command.
     void reset();
 
 private:
-    std::string extract_text(
-        const std::string &json);
+    bool chunk_contains_speech(const int16_t *samples, int sample_count) const;
 
-    VoskModel *model_;
-    VoskRecognizer *recognizer_;
+    std::string clean_result(const std::string &text) const;
+
+    void update_pre_roll(const int16_t *samples, int sample_count);
+
+    whisper_context *context_;
+
+    int sample_rate_;
+
+    /*
+     * Complete command sent to Whisper.
+     */
+    std::vector<int16_t> audio_buffer_;
+
+    /*
+     * Rolling audio immediately before VAD decides
+     * that speech has started.
+     */
+    std::deque<int16_t> pre_roll_buffer_;
+
+    bool speech_started_;
+
+    int silence_samples_;
 };
