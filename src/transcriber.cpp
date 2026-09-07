@@ -174,6 +174,8 @@ std::string Transcriber::get_result()
     params.initial_prompt =
         "Voice assistant commands. "
         "Song titles and artist names may be in any language. "
+        "play erika"
+        "play sieg heil viktoria"
         "Commands include play, open terminal, open firefox, "
         "close firefox, raise the volume, lower the volume, "
         "turn the volume up, turn the volume down, stop, "
